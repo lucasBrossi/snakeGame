@@ -4,10 +4,12 @@ let playAgain = document.querySelector(".playAgain");
 let playGame = document.querySelector(".playGame");
 let scoreDisplay = document.querySelector(".scoreDisplay");
 
+//This select the audios and set them
 const moveAudio = new Audio("./audios/move.aac");
 const eatAudio = new Audio("./audios/eat.aac");
 const hitAudio = new Audio("./audios/hit.aac");
 
+//This must to enumerate the types used into the code
 const directionsEnum = {
   up: "ArrowUp",
   down: "ArrowDown",
@@ -38,6 +40,7 @@ const bodyInlineEnum = {
   vertical: "body_vertical",
 };
 
+//Global variables
 var lastMove = directionsEnum.right;
 var directionBeforeLastMove = "";
 var lastTail = tailsEnum.right;
@@ -53,6 +56,7 @@ let speed = 0.97;
 let intervalTime = 0;
 let interval = 0;
 
+//This is responsible to iniciate the game
 document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", control);
   createBoard();
@@ -121,6 +125,7 @@ const control = ({ key }) => {
   }
 };
 
+//This must to start the game
 const startGame = () => {
   hitAudio.pause();
   hitAudio.load();
@@ -161,6 +166,8 @@ const nextMove = () => {
 };
 
 const moveOutcome = () => {
+
+  //If canMove is false, the moves can not work
   if (!canMove) {
     return;
   }
@@ -254,10 +261,13 @@ const moveSnake = (squares) => {
     squares[tail].classList.add(lastTail);
     removeBodyInlines(squares, tail);
   }
+
+  //This play the sound of move
   moveAudio.play();
   moveAudio.fastSeek(0.1);
 };
 
+//This removes all body classes related to turns
 const removeBodyTurns = (squares, index) => {
   squares[index].classList.remove(
     bodyEnum.up_right,
@@ -271,6 +281,7 @@ const removeBodyTurns = (squares, index) => {
   );
 };
 
+//This removes all body classes related to inlines, vertical and horizontal
 const removeBodyInlines = (squares, index) => {
   squares[index].classList.remove(
     bodyInlineEnum.horizontal,
@@ -278,6 +289,7 @@ const removeBodyInlines = (squares, index) => {
   );
 };
 
+//This must to check for hits before snake moves
 const checkForHits = (squares) => {
   if (
     (currentSnake[0] + width >= width * width && direction === width) ||
@@ -292,6 +304,7 @@ const checkForHits = (squares) => {
   return false;
 };
 
+//This must to check if apple is going to be eaten
 const eatApple = (squares, tail) => {
   if (squares[currentSnake[0]].classList.contains("apple")) {
     eatAudio.pause();
@@ -309,6 +322,7 @@ const eatApple = (squares, tail) => {
   }
 };
 
+//This select a random grid that it is not a snake and create an apple
 const randomApple = (squares) => {
   do {
     appleIndex = Math.floor(Math.random() * squares.length);
@@ -316,6 +330,7 @@ const randomApple = (squares) => {
   squares[appleIndex].classList.add("apple");
 };
 
+//This must to replay game
 const replay = () => {
   grid.innerHTML = "";
   createBoard();
