@@ -1,3 +1,4 @@
+//This was made by Lucas Bueno Rossi; Lucas Angulo Amador; Luis Victor; Arthur Dylan
 let grid = document.querySelector(".grid");
 let popup = document.querySelector(".popup");
 let playAgain = document.querySelector(".playAgain");
