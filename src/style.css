@@ -29,6 +29,21 @@ body {
 	display: flex;
 }
 
+.cleanScores {
+	background-color: black;
+	color: brown;
+	border: solid 2px brown;
+	border-radius: 4px;
+	font-size: 20pt;
+	transition: 0.5s;
+	margin: 10px;
+}
+
+.cleanScores:hover {
+	transition: 0.5s;
+	scale: 1.5
+}
+
 .scores {
 	font-size: 20pt;
 	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
