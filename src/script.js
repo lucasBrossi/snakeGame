@@ -1,45 +1,30 @@
+//This part must to import all we need to execute
+import {
+  bodyEnum,
+  bodyInlineEnum,
+  colorEnum,
+  directionsEnum,
+  tailsEnum,
+} from "./enum.js";
+import { firstTenPlayers, removeScores, setScore } from "./helper.js";
+
 //This was made by Lucas Bueno Rossi; Lucas Angulo Amador; Luis Victor; Arthur Dylan
 let grid = document.querySelector(".grid");
 let popup = document.querySelector(".popup");
 let playAgain = document.querySelector(".playAgain");
 let playGame = document.querySelector(".playGame");
 let scoreDisplay = document.querySelector(".scoreDisplay");
+let body = document.querySelector("body");
+let generalScore = document.querySelector(".generalScore");
+let cleanScores = document.querySelector(".cleanScores");
 
 //This select the audios and set them
-const moveAudio = new Audio("./audios/move.aac");
+const moveAudio = new Audio("./audios/move.mp3");
 const eatAudio = new Audio("./audios/eat.aac");
 const hitAudio = new Audio("./audios/hit.aac");
 
-//This must to enumerate the types used into the code
-const directionsEnum = {
-  up: "ArrowUp",
-  down: "ArrowDown",
-  left: "ArrowLeft",
-  right: "ArrowRight",
-};
-
-const tailsEnum = {
-  up: "tail-CommingFromArrowUp",
-  down: "tail-CommingFromArrowDown",
-  left: "tail-CommingFromArrowLeft",
-  right: "tail-CommingFromArrowRight",
-};
-
-const bodyEnum = {
-  up_right: "body-ArrowUp-CommingFromArrowRight",
-  up_left: "body-ArrowUp-CommingFromArrowLeft",
-  down_left: "body-ArrowDown-CommingFromArrowLeft",
-  down_right: "body-ArrowDown-CommingFromArrowRight",
-  left_down: "body-ArrowLeft-CommingFromArrowDown",
-  left_up: "body-ArrowLeft-CommingFromArrowUp",
-  right_down: "body-ArrowRight-CommingFromArrowDown",
-  right_up: "body-ArrowRight-CommingFromArrowUp",
-};
-
-const bodyInlineEnum = {
-  horizontal: "body_horizontal",
-  vertical: "body_vertical",
-};
+//this must to set volume of move to 90%
+moveAudio.volume = 0.09;
 
 //Global variables
 var lastMove = directionsEnum.right;
@@ -47,6 +32,10 @@ var directionBeforeLastMove = "";
 var lastTail = tailsEnum.right;
 var wasRedirect = false;
 var canMove = false;
+var lastNumber;
+var playerName;
+var squares;
+var greateScore;
 
 let width = 20;
 let appleIndex = 0;
@@ -62,10 +51,11 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", control);
   createBoard();
   startGame();
+  cleanScores.addEventListener("click", removeScores);
   playAgain.addEventListener("click", replay);
   playGame.addEventListener("click", () => {
     canMove = true;
-    playGame.classList.add("displayNone")
+    playGame.classList.add("displayNone");
   });
 });
 
@@ -78,9 +68,12 @@ const createBoard = () => {
   });
 };
 
+//This must to control by keyArrow all the snake moves
 const control = ({ key }) => {
-  //This must to control by keyArrow all the snake moves
-
+  //This part must just to move when arrow key down
+  if (!canMove) {
+    return;
+  }
   switch (key) {
     case directionsEnum.up:
       if (lastMove !== directionsEnum.down && lastMove !== directionsEnum.up) {
@@ -131,9 +124,9 @@ const startGame = () => {
   hitAudio.pause();
   hitAudio.load();
 
+  reloadScores();
   squares = document.querySelectorAll(".grid div");
-  randomApple(squares);
-
+  newColor();
   lastMove = directionsEnum.right;
   directionBeforeLastMove = "";
   lastTail = tailsEnum.right;
@@ -146,15 +139,23 @@ const startGame = () => {
   squares[2].classList.add(`head-${lastMove}`);
   squares[1].classList.add(bodyInlineEnum.horizontal);
   squares[0].classList.add(tailsEnum.right);
+
+  // this need to be after of snake creation
+  randomApple(squares);
   interval = setInterval(moveOutcome, intervalTime);
 };
 
-const nextMove = () => {
-  //This part must just to move when arrow key down
-  if (!canMove) {
-    return;
-  }
+// this must to change the background color
+const newColor = () => {
+  let randomNumber;
+  do {
+    randomNumber = Math.floor(Math.random() * 10);
+  } while (lastNumber === randomNumber);
+  lastNumber = randomNumber;
+  body.style.backgroundColor = colorEnum[randomNumber];
+};
 
+const nextMove = () => {
   moveOutcome();
 
   //This ads the current turn of snake when it become to another direction
@@ -167,7 +168,6 @@ const nextMove = () => {
 };
 
 const moveOutcome = () => {
-
   //If canMove is false, the moves can not work
   if (!canMove) {
     return;
@@ -178,12 +178,17 @@ const moveOutcome = () => {
     hitAudio.play();
     canMove = false;
     popup.style.display = "flex";
-    return clearInterval(interval);
+    clearInterval(interval);
+    playerName = prompt("Nome do Jogador:");
+    if (!!playerName) {
+      setScore(playerName, score);
+    }
   } else {
     moveSnake(squares);
   }
 };
 
+// this is responsible to move the snake
 const moveSnake = (squares) => {
   let tail = currentSnake.pop();
 
@@ -208,6 +213,7 @@ const moveSnake = (squares) => {
     `head-${directionsEnum.left}`
   );
 
+  // this must to chose the turn body of snake
   if (
     !wasRedirect &&
     (lastMove === directionsEnum.down || lastMove === directionsEnum.up)
@@ -264,8 +270,9 @@ const moveSnake = (squares) => {
   }
 
   //This play the sound of move
-  moveAudio.play();
   moveAudio.fastSeek(0.1);
+  moveAudio.playbackRate = 2;
+  moveAudio.play();
 };
 
 //This removes all body classes related to turns
@@ -319,6 +326,9 @@ const eatApple = (squares, tail) => {
     clearInterval(interval);
     intervalTime = intervalTime * speed;
     interval = setInterval(moveOutcome, intervalTime);
+
+    // every time the apple is eaten, the background must to be changed by other
+    newColor();
     eatAudio.play();
   }
 };
@@ -329,6 +339,19 @@ const randomApple = (squares) => {
     appleIndex = Math.floor(Math.random() * squares.length);
   } while (squares[appleIndex].classList.contains("snake"));
   squares[appleIndex].classList.add("apple");
+};
+
+// this must to reload and rerender all the scores from localStorage to generalScore
+const reloadScores = () => {
+  greateScore = firstTenPlayers();
+  generalScore.innerHTML = "";
+
+  greateScore.forEach((score) => {
+    var div = document.createElement("div");
+    div.innerHTML = `${score.playerName}: ${score.score}`;
+    div.classList.add("scores");
+    generalScore.appendChild(div);
+  });
 };
 
 //This must to replay game
