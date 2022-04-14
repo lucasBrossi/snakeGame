@@ -270,9 +270,10 @@ const moveSnake = (squares) => {
   }
 
   //This play the sound of move
-  moveAudio.fastSeek(0.1);
+  //moveAudio.fastSeek(0.1); only into firefox
   moveAudio.playbackRate = 2;
   moveAudio.play();
+  return;
 };
 
 //This removes all body classes related to turns

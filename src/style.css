@@ -41,7 +41,7 @@ body {
 
 .cleanScores:hover {
 	transition: 0.5s;
-	scale: 1.5
+	scale: 1.5;
 }
 
 .scores {
